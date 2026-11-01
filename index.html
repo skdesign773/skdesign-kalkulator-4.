@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123d35"><title>SKDESIGN Kalkulator</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--green:#123d35;--gold:#e4b85d;--bg:#f3f6f4;--card:#fff;--ink:#172522;--muted:#63716c}
+*{box-sizing:border-box}body{margin:0;font:16px system-ui,Arial;background:var(--bg);color:var(--ink)}
+header{background:var(--green);color:white;padding:22px 18px 18px}header h1{margin:0;font-size:24px}header p{margin:5px 0 0;color:#d8e6df}
+main{max-width:850px;margin:auto;padding:14px}.tabs{display:flex;gap:8px;overflow:auto;margin:0 0 12px}
+.tabs button{white-space:nowrap;border:0;border-radius:20px;padding:10px 15px;background:#dce7e1;color:var(--green);font-weight:700}
+.tabs button.active{background:var(--green);color:white}.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border-radius:15px;padding:16px;margin-bottom:12px;box-shadow:0 2px 9px #123d3510}
+h2{font-size:18px;margin:0 0 12px}label{display:block;font-size:13px;color:var(--muted);margin:9px 0 5px}
+input,select{width:100%;padding:11px;border:1px solid #d5dfda;border-radius:9px;font:inherit;background:white}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}
+button.primary{background:var(--green);color:white;border:0;padding:12px 16px;border-radius:10px;font-weight:700;width:100%;margin-top:12px}
+button.secondary{background:#e7efeb;color:var(--green);border:0;padding:9px 12px;border-radius:9px;font-weight:700}
+.result{background:#e9f4ee;border-radius:12px;padding:14px;margin-top:12px}.price{font-size:29px;font-weight:800;color:var(--green)}
+.small{font-size:12px;color:var(--muted)}.row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid #edf1ee}
+.item{padding:10px 0;border-bottom:1px solid #edf1ee}.item strong{display:block}.item button{margin:5px 4px 0 0}
+@media(max-width:500px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}}
+</style></head>
+<body>
+<header><h1>SKDESIGN Kalkulator</h1><p>Kalkulator harga jual • offline • tanpa login</p></header>
+<main>
+<nav class="tabs"><button class="active" data-tab="calc">Kalkulator</button><button data-tab="products">Produk</button><button data-tab="history">Riwayat</button><button data-tab="guide">Panduan</button></nav>
+<section id="calc" class="panel active">
+<div class="card"><h2>Hitung harga jual</h2><div class="grid">
+<div class="wide"><label>Nama produk / pekerjaan</label><input id="name" placeholder="Contoh: Banner 1 x 2 meter"></div>
+<div><label>Modal bahan (Rp)</label><input id="cost" type="number" min="0" value="25000"></div>
+<div><label>Biaya operasional lain (Rp)</label><input id="other" type="number" min="0" value="5000"></div>
+<div><label>Target keuntungan (%)</label><input id="profit" type="number" min="0" step=".5" value="30"></div>
+<div><label>Potongan marketplace (%)</label><input id="fee" type="number" min="0" step=".1" value="5"></div>
+<div><label>Biaya tetap marketplace (Rp)</label><input id="fixed" type="number" min="0" value="0"></div>
+<div><label>Diskon dari harga jual (%)</label><input id="discount" type="number" min="0" max="99" step=".5" value="0"></div>
+</div><button class="primary" id="calculate">Hitung harga jual</button>
+<div id="result" class="result" aria-live="polite"></div><button class="secondary" id="saveCalc">Simpan ke riwayat</button></div>
+</section>
+<section id="products" class="panel"><div class="card"><h2>Daftar produk</h2><p class="small">Simpan harga/modal untuk digunakan kembali. Data hanya tersimpan di perangkat ini.</p>
+<div class="grid"><div class="wide"><label>Nama produk</label><input id="pname" placeholder="Nama produk"></div><div><label>Modal (Rp)</label><input id="pcost" type="number" min="0"></div><div><label>Operasional (Rp)</label><input id="pother" type="number" min="0" value="0"></div></div><button class="primary" id="addProduct">Simpan produk</button><div id="productList"></div></div></section>
+<section id="history" class="panel"><div class="card"><h2>Riwayat perhitungan</h2><div id="historyList"></div><button class="secondary" id="clearHistory">Hapus riwayat</button></div></section>
+<section id="guide" class="panel"><div class="card"><h2>Saran menentukan keuntungan</h2><p><b>Patokan awal (bukan aturan mutlak):</b></p><div class="row"><span>Produk kompetitif / volume tinggi</span><b>15–25%</b></div><div class="row"><span>Produk/pekerjaan umum</span><b>25–40%</b></div><div class="row"><span>Custom, rumit, risiko revisi</span><b>40–60%+</b></div><p class="small">Sesuaikan dengan harga pasar, tingkat kesulitan, waktu kerja, risiko salah cetak, dan biaya yang sering terlupa. Kalkulator menggunakan target laba sebagai persentase dari total biaya, bukan margin dari harga jual.</p><h2>Rumus</h2><p>Harga sebelum diskon = (modal + operasional) × (1 + laba%) + biaya tetap, lalu dibagi dengan (1 − potongan%). Jika ada diskon, harga list dinaikkan agar harga setelah diskon tetap mencapai target.</p><p class="small">Tarif marketplace berubah-ubah. Masukkan total potongan yang berlaku untuk kategori/toko Anda; kalkulator tidak mengambil tarif secara otomatis.</p></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id), rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n);
+let last=null, products=JSON.parse(localStorage.getItem('skd_products')||'[]'), history=JSON.parse(localStorage.getItem('skd_history')||'[]');
+function compute(){let cost=+$('cost').value||0, other=+$('other').value||0, profit=(+$('profit').value||0)/100, fee=(+$('fee').value||0)/100, fixed=+$('fixed').value||0, discount=(+$('discount').value||0)/100;
+let base=cost+other, netNeeded=base*(1+profit)+fixed, afterDiscount=netNeeded/(1-fee), list=afterDiscount/(1-discount), feeAmount=afterDiscount*fee, discounted=list*(1-discount), net=discounted-feeAmount-fixed, gain=net-base;
+last={name:$('name').value||'Tanpa nama',cost,other,profit:profit*100,fee:fee*100,fixed,discount:discount*100,list,discounted,feeAmount,gain,base};
+$('result').innerHTML=`<div class="small">Rekomendasi harga jual</div><div class="price">${rupiah(list)}</div><div class="row"><span>Harga setelah diskon</span><b>${rupiah(discounted)}</b></div><div class="row"><span>Total modal + operasional</span><b>${rupiah(base)}</b></div><div class="row"><span>Estimasi potongan</span><b>${rupiah(feeAmount+fixed)}</b></div><div class="row"><span>Estimasi laba bersih</span><b>${rupiah(gain)}</b></div><div class="small">Estimasi berdasarkan angka yang Anda masukkan. Pembulatan harga ke angka praktis bisa dilakukan setelahnya.</div>`;
+}
+$('calculate').onclick=compute;['cost','other','profit','fee','fixed','discount','name'].forEach(id=>$(id).addEventListener('input',compute));compute();
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));});
+$('saveCalc').onclick=()=>{if(!last)compute();history.unshift({...last,date:new Date().toLocaleString('id-ID')});history=history.slice(0,100);localStorage.setItem('skd_history',JSON.stringify(history));renderHistory();alert('Perhitungan tersimpan.');};
+$('addProduct').onclick=()=>{let name=$('pname').value.trim();if(!name)return alert('Isi nama produk.');products.unshift({name,cost:+$('pcost').value||0,other:+$('pother').value||0});localStorage.setItem('skd_products',JSON.stringify(products));$('pname').value='';renderProducts();};
+function renderProducts(){$('productList').innerHTML=products.map((p,i)=>`<div class="item"><strong>${esc(p.name)}</strong><div class="small">Modal ${rupiah(p.cost)} · Operasional ${rupiah(p.other)}</div><button class="secondary" onclick="useProduct(${i})">Pakai</button><button class="secondary" onclick="deleteProduct(${i})">Hapus</button></div>`).join('')||'<p class="small">Belum ada produk disimpan.</p>'}
+window.useProduct=i=>{let p=products[i];$('name').value=p.name;$('cost').value=p.cost;$('other').value=p.other;document.querySelector('[data-tab="calc"]').click();compute()};
+window.deleteProduct=i=>{products.splice(i,1);localStorage.setItem('skd_products',JSON.stringify(products));renderProducts()};
+function renderHistory(){$('historyList').innerHTML=history.map((h,i)=>`<div class="item"><strong>${esc(h.name)} — ${rupiah(h.list)}</strong><div class="small">${esc(h.date||'')} · Laba estimasi ${rupiah(h.gain)}</div><button class="secondary" onclick="loadHistory(${i})">Muat</button></div>`).join('')||'<p class="small">Belum ada riwayat.</p>'}
+window.loadHistory=i=>{let h=history[i];$('name').value=h.name;$('cost').value=h.cost;$('other').value=h.other;$('profit').value=h.profit;$('fee').value=h.fee;$('fixed').value=h.fixed;$('discount').value=h.discount;document.querySelector('[data-tab="calc"]').click();compute()};
+$('clearHistory').onclick=()=>{if(confirm('Hapus semua riwayat?')){history=[];localStorage.setItem('skd_history','[]');renderHistory()}};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+renderProducts();renderHistory();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js");</script></body></html>
