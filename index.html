@@ -2,8 +2,16 @@
 <html lang="id">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#123d35"><title>SKDESIGN Kalkulator</title>
-<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#123d35">
+<meta name="description" content="Kalkulator harga jual offline untuk SKDESIGN">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SKDESIGN">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<title>SKDESIGN Kalkulator</title>
 <style>
 :root{--green:#123d35;--gold:#e4b85d;--bg:#f3f6f4;--card:#fff;--ink:#172522;--muted:#63716c}
 *{box-sizing:border-box}body{margin:0;font:16px system-ui,Arial;background:var(--bg);color:var(--ink)}
@@ -63,4 +71,8 @@ window.loadHistory=i=>{let h=history[i];$('name').value=h.name;$('cost').value=h
 $('clearHistory').onclick=()=>{if(confirm('Hapus semua riwayat?')){history=[];localStorage.setItem('skd_history','[]');renderHistory()}};
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 renderProducts();renderHistory();
-if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js");</script></body></html>
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch((err) => console.warn("Service worker gagal didaftarkan:", err));
+  });
+}</script></body></html>
